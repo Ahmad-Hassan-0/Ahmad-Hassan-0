@@ -3,7 +3,7 @@ name: GitHub Metrics
 on:
   schedule:
     - cron: "0 19 * * *"   # midnight PKT
-    - cron: "0 7  * * *"   # noon    PKT
+    - cron: "0 7  * * *"   # noon PKT
   push:
     branches: ["main"]
   workflow_dispatch:
@@ -29,6 +29,9 @@ jobs:
           retries: 3
           retries_delay: 300
 
+          # ── CRITICAL FIX: don't let one failing plugin crash the whole SVG ─
+          plugins_errors_fatal: no
+
           # ── Layout ─────────────────────────────────────────────────────────
           template: classic
           config_display: columns
@@ -44,12 +47,14 @@ jobs:
           base: header, activity, community, repositories
           base_indepth: yes
 
-          # 2. Habits ── FIX: reduced "from" so it doesn't crash on low activity
+          # 2. Habits — FIX: from:10 + days:30 handles low-activity accounts
+          #             charts_type: classic avoids chartist rendering crash
           plugin_habits: yes
-          plugin_habits_from: 30          # was 200 — caused "Unexpected error"
-          plugin_habits_days: 14
+          plugin_habits_from: 10
+          plugin_habits_days: 30
           plugin_habits_facts: yes
           plugin_habits_charts: yes
+          plugin_habits_charts_type: classic
           plugin_habits_trim: yes
 
           # 3. Topics
@@ -62,17 +67,10 @@ jobs:
           # RIGHT COLUMN
           # ══════════════════════════════════════════════════════════════════
 
-          # 4. PageSpeed ── FIX: add your free Google API key to stop 429 errors
-          #
-          #    HOW TO GET THE KEY (2 minutes):
-          #    → go to https://developers.google.com/speed/docs/insights/v5/get-started
-          #    → click "Get a Key" → create any project → copy the key
-          #    → add it as a secret named PAGESPEED_TOKEN in your repo
-          #      (Settings → Secrets → Actions → New secret)
-          #
+          # 4. PageSpeed — needs PAGESPEED_TOKEN secret to avoid 429 rate limit
           plugin_pagespeed: yes
           plugin_pagespeed_url: https://kodearrow.wuaze.com/
-          plugin_pagespeed_token: ${{ secrets.PAGESPEED_TOKEN }}   # ← add this secret
+          plugin_pagespeed_token: ${{ secrets.PAGESPEED_TOKEN }}
           plugin_pagespeed_detailed: no
           plugin_pagespeed_screenshot: no
 
@@ -80,11 +78,11 @@ jobs:
           plugin_isocalendar: yes
           plugin_isocalendar_duration: full-year
 
-          # 6. Music ── you already have Last.fm working, keep your token secret name
+          # 6. Music — Last.fm
           plugin_music: yes
           plugin_music_provider: lastfm
-          plugin_music_token: ${{ secrets.LASTFM_TOKEN }}   # your existing secret
-          plugin_music_user: ${{ secrets.LASTFM_USERNAME }} # your Last.fm username
+          plugin_music_token: ${{ secrets.LASTFM_TOKEN }}
+          plugin_music_user: ${{ secrets.LASTFM_USERNAME }}
           plugin_music_mode: recent
           plugin_music_limit: 2
 
