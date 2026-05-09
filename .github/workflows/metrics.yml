@@ -29,60 +29,57 @@ jobs:
           retries: 3
           retries_delay: 300
 
-          # ── CRITICAL FIX: don't let one failing plugin crash the whole SVG ─
+          # Prevent one failing plugin from crashing the whole image
           plugins_errors_fatal: no
 
-          # ── Layout ─────────────────────────────────────────────────────────
+          # ── Layout (This creates the exact split view) ─────────────────────
           template: classic
-          config_display: columns
+          config_display: large
           config_timezone: Asia/Karachi
-          config_padding: 6%, 10%
-          config_order: base.header, base.activity+community+repositories, habits, topics, pagespeed, isocalendar, music, languages, projects
+          config_order: base.header, isocalendar, habits, pagespeed, music, languages, projects, topics
 
           # ══════════════════════════════════════════════════════════════════
-          # LEFT COLUMN
+          # LEFT COLUMN ELEMENTS
           # ══════════════════════════════════════════════════════════════════
 
-          # 1. Base
-          base: header, activity, community, repositories
-          base_indepth: yes
+          # 1. Base Content
+          base: header, activity, community, repositories, metadata
+          base_indepth: no # Disabled to prevent the timeout error
 
-          # 2. Habits — FIX: from:10 + days:30 handles low-activity accounts
-          #             charts_type: classic avoids chartist rendering crash
+          # 2. Habits
           plugin_habits: yes
-          plugin_habits_from: 10
-          plugin_habits_days: 30
+          plugin_habits_from: 200
+          plugin_habits_days: 14
           plugin_habits_facts: yes
           plugin_habits_charts: yes
-          plugin_habits_charts_type: classic
           plugin_habits_trim: yes
 
-          # 3. Topics
+          # 3. Mastered Technologies (Topics)
           plugin_topics: yes
           plugin_topics_limit: 15
           plugin_topics_mode: icons
           plugin_topics_sort: stars
 
           # ══════════════════════════════════════════════════════════════════
-          # RIGHT COLUMN
+          # RIGHT COLUMN ELEMENTS
           # ══════════════════════════════════════════════════════════════════
 
-          # 4. PageSpeed — needs PAGESPEED_TOKEN secret to avoid 429 rate limit
+          # 4. PageSpeed
           plugin_pagespeed: yes
           plugin_pagespeed_url: https://kodearrow.wuaze.com/
           plugin_pagespeed_token: ${{ secrets.PAGESPEED_TOKEN }}
           plugin_pagespeed_detailed: no
           plugin_pagespeed_screenshot: no
 
-          # 5. Isocalendar
+          # 5. Isometric Calendar
           plugin_isocalendar: yes
-          plugin_isocalendar_duration: full-year
+          plugin_isocalendar_duration: half-year
 
-          # 6. Music — Last.fm
+          # 6. Music 
           plugin_music: yes
           plugin_music_provider: lastfm
           plugin_music_token: ${{ secrets.LASTFM_TOKEN }}
-          plugin_music_user: ${{ secrets.LASTFM_USERNAME }}
+          plugin_music_user: B-Ted
           plugin_music_mode: recent
           plugin_music_limit: 2
 
@@ -94,9 +91,8 @@ jobs:
           plugin_languages_limit: 8
           plugin_languages_sections: most-used
           plugin_languages_threshold: 0%
-          plugin_languages_indepth: yes
 
           # 8. Projects
           plugin_projects: yes
-          plugin_projects_limit: 4
+          plugin_projects_limit: 1
           plugin_projects_descriptions: yes
