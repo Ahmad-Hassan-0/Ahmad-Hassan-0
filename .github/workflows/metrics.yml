@@ -26,7 +26,7 @@ jobs:
           committer_branch: main
           committer_message: "chore: refresh metrics [skip ci]"
 
-          # ── Layout (Forcing the Lecoq 2-Column Dashboard) ──────────────────
+          # ── Layout (Forcing the 2-Column Dashboard) ────────────────────────
           template: classic
           config_display: large
           config_timezone: Asia/Karachi
@@ -40,9 +40,8 @@ jobs:
           # ══════════════════════════════════════════════════════════════════
           base: header, activity, community, repositories
           base_indepth: no
-
-          # NOTE: The 'habits' plugin is completely disabled here. 
-          # Your 'ghosted' commits cause the plugin to crash.
+          
+          # Habits is disabled because ghosted commits crash the chart rendering
           plugin_habits: no
 
           plugin_topics: yes
@@ -62,9 +61,10 @@ jobs:
           plugin_isocalendar: yes
           plugin_isocalendar_duration: half-year
 
+          # MUSIC PLUGIN FIX: Using the correct MUSIC_TOKEN secret name
           plugin_music: yes
           plugin_music_provider: lastfm
-          plugin_music_token: ${{ secrets.LASTFM_TOKEN }}
+          plugin_music_token: ${{ secrets.MUSIC_TOKEN }}
           plugin_music_user: B-Ted
           plugin_music_mode: recent
           plugin_music_limit: 2
