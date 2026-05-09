@@ -2,7 +2,7 @@ name: GitHub Metrics
 
 on:
   schedule:
-    - cron: "0 19 * * *"   # midnight PKT (UTC+5)
+    - cron: "0 19 * * *"   # midnight PKT
     - cron: "0 7  * * *"   # noon    PKT
   push:
     branches: ["main"]
@@ -29,42 +29,30 @@ jobs:
           retries: 3
           retries_delay: 300
 
-          # ── Layout — two-column classic ────────────────────────────────────
+          # ── Layout ─────────────────────────────────────────────────────────
           template: classic
           config_display: columns
           config_timezone: Asia/Karachi
           config_padding: 6%, 10%
-
-          # ┌─────────────────────┬──────────────────────────────┐
-          # │   LEFT COLUMN       │   RIGHT COLUMN               │
-          # ├─────────────────────┼──────────────────────────────┤
-          # │ base (header+stats) │ pagespeed (score circles)    │
-          # │ habits (charts)     │ isocalendar (3D calendar)    │
-          # │   └ language chart  │ music (suggested tracks)     │
-          # │ topics (icon grid)  │ languages (most used bar)    │
-          # │                     │ projects (task progress)     │
-          # └─────────────────────┴──────────────────────────────┘
           config_order: base.header, base.activity+community+repositories, habits, topics, pagespeed, isocalendar, music, languages, projects
 
           # ══════════════════════════════════════════════════════════════════
           # LEFT COLUMN
           # ══════════════════════════════════════════════════════════════════
 
-          # 1. Base ── name · join date · followers · repo stats ──────────────
+          # 1. Base
           base: header, activity, community, repositories
           base_indepth: yes
 
-          # 2. Habits ── commit chart by hour + "Language activity" sub-chart ─
-          #    (the language activity bar inside habits is NOT plugin_languages —
-          #     it is automatically rendered by habits when charts = yes)
+          # 2. Habits ── FIX: reduced "from" so it doesn't crash on low activity
           plugin_habits: yes
-          plugin_habits_from: 200
+          plugin_habits_from: 30          # was 200 — caused "Unexpected error"
           plugin_habits_days: 14
-          plugin_habits_facts: yes        # "Coding habits and recent activity" title
-          plugin_habits_charts: yes       # renders both time-of-day AND lang charts
+          plugin_habits_facts: yes
+          plugin_habits_charts: yes
           plugin_habits_trim: yes
 
-          # 3. Topics ── mastered technologies icon grid ──────────────────────
+          # 3. Topics
           plugin_topics: yes
           plugin_topics_limit: 15
           plugin_topics_mode: icons
@@ -74,36 +62,33 @@ jobs:
           # RIGHT COLUMN
           # ══════════════════════════════════════════════════════════════════
 
-          # 4. PageSpeed ── four circular scores (perf / a11y / bp / seo) ─────
+          # 4. PageSpeed ── FIX: add your free Google API key to stop 429 errors
+          #
+          #    HOW TO GET THE KEY (2 minutes):
+          #    → go to https://developers.google.com/speed/docs/insights/v5/get-started
+          #    → click "Get a Key" → create any project → copy the key
+          #    → add it as a secret named PAGESPEED_TOKEN in your repo
+          #      (Settings → Secrets → Actions → New secret)
+          #
           plugin_pagespeed: yes
           plugin_pagespeed_url: https://kodearrow.wuaze.com/
+          plugin_pagespeed_token: ${{ secrets.PAGESPEED_TOKEN }}   # ← add this secret
           plugin_pagespeed_detailed: no
           plugin_pagespeed_screenshot: no
 
-          # 5. Isocalendar ── 3D isometric contribution graph ─────────────────
+          # 5. Isocalendar
           plugin_isocalendar: yes
           plugin_isocalendar_duration: full-year
 
-          # 6. Music ── suggested / recently played tracks ────────────────────
-          #
-          #    ► To enable:
-          #      a) Go to repo → Settings → Secrets → Actions → New secret
-          #      b) Add MUSIC_TOKEN (see provider instructions below)
-          #      c) Uncomment the 4 lines below
-          #
-          #    Spotify : generate token at https://developer.spotify.com
-          #              set plugin_music_provider: spotify
-          #    Last.fm : get API key at https://www.last.fm/api
-          #              set plugin_music_provider: lastfm
-          #
+          # 6. Music ── you already have Last.fm working, keep your token secret name
           plugin_music: yes
-          plugin_music_provider: lastfm 
-          plugin_music_token: ${{ secrets.MUSIC_TOKEN }}
-          plugin_music_user: B-Ted
+          plugin_music_provider: lastfm
+          plugin_music_token: ${{ secrets.LASTFM_TOKEN }}   # your existing secret
+          plugin_music_user: ${{ secrets.LASTFM_USERNAME }} # your Last.fm username
           plugin_music_mode: recent
           plugin_music_limit: 2
 
-          # 7. Languages ── "Most used languages" bar + dot legend ─────────────
+          # 7. Languages
           plugin_languages: yes
           plugin_languages_analysis_timeout: 15
           plugin_languages_categories: markup, programming
@@ -113,7 +98,7 @@ jobs:
           plugin_languages_threshold: 0%
           plugin_languages_indepth: yes
 
-          # 8. Projects ── task bar (done · doing · todo) ─────────────────────
+          # 8. Projects
           plugin_projects: yes
           plugin_projects_limit: 4
           plugin_projects_descriptions: yes
