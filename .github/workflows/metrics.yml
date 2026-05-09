@@ -136,7 +136,7 @@ jobs:
           user: Ahmad-Hassan-0
           template: classic
           base: ""
-          config_timezone: Asia/Islamabad
+          config_timezone: Asia/Karachi
           filename: metrics.calendar.svg
 
           plugin_calendar: yes
