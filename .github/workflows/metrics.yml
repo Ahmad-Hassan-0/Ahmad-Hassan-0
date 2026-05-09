@@ -1,32 +1,62 @@
 name: GitHub Metrics
 
 on:
+  # Auto-runs every day at midnight & noon (Karachi time = UTC+5, so 19:00 & 07:00 UTC)
   schedule:
-    - cron: "0 */6 * * *"   # Runs every 6 hours
-  workflow_dispatch:          # Allows manual trigger
+    - cron: "0 19 * * *"   # midnight PKT
+    - cron: "0 7  * * *"   # noon    PKT
+  # Also re-runs whenever you push anything to main (keeps it fresh after commits)
   push:
     branches: ["main"]
+  # Keep manual trigger as a backup
+  workflow_dispatch:
 
 jobs:
   github-metrics:
     runs-on: ubuntu-latest
+
+    # Required so the action can commit the SVG back into the repo
     permissions:
       contents: write
 
     steps:
-      # ── Classic overview (base + habits + languages + topics) ──────────────
-      - name: Classic metrics
+      - name: Generate & auto-commit metrics SVG
         uses: lowlighter/metrics@latest
         with:
+          # ── Auth ───────────────────────────────────────────────────────────
           token: ${{ secrets.METRICS_TOKEN }}
+
+          # ── Output — commits SVG straight into this repo, no manual step ──
           user: Ahmad-Hassan-0
+          filename: metrics.svg
+          output_action: commit           # auto-commits the file
+          committer_branch: main          # commits to main branch
+          committer_message: "chore: refresh metrics [skip ci]"  # [skip ci] stops infinite loops
+          delay: 120                      # wait 2 min after push before generating (avoids race)
+
+          # ── Retry on GitHub API hiccups (no manual re-runs needed) ─────────
+          retries: 3
+          retries_delay: 300              # wait 5 min between retries
+
+          # ── Layout ─────────────────────────────────────────────────────────
           template: classic
-          base: header, activity, community, repositories
-          base_indepth: yes
+          config_display: columns         # two-column layout
           config_timezone: Asia/Karachi
           config_padding: 6%, 10%
-          filename: metrics.classic.svg
 
+          # LEFT col  → base, habits, topics
+          # RIGHT col → pagespeed, isocalendar, languages, projects
+          config_order: base.header, base.activity+community+repositories, habits, topics, pagespeed, isocalendar, languages, projects
+
+          # ══════════════════════════════════════════════════════════════════
+          # LEFT COLUMN
+          # ══════════════════════════════════════════════════════════════════
+
+          # 1. Base — name, join date, repo stats, contribution graph ─────────
+          base: header, activity, community, repositories
+          base_indepth: yes
+
+          # 2. Coding habits — bar charts (time of day + day of week) ─────────
           plugin_habits: yes
           plugin_habits_from: 200
           plugin_habits_days: 14
@@ -34,110 +64,37 @@ jobs:
           plugin_habits_charts: yes
           plugin_habits_trim: yes
 
-          plugin_languages: yes
-          plugin_languages_analysis_timeout: 15
-          plugin_languages_categories: markup, programming
-          plugin_languages_colors: github
-          plugin_languages_limit: 8
-          plugin_languages_recent_categories: markup, programming
-          plugin_languages_recent_days: 14
-          plugin_languages_recent_load: 300
-          plugin_languages_sections: most-used
-          plugin_languages_threshold: 0%
-
+          # 3. Starred topics — technology icon grid ──────────────────────────
           plugin_topics: yes
           plugin_topics_limit: 15
           plugin_topics_mode: icons
           plugin_topics_sort: stars
 
-      # ── Isometric commit calendar ──────────────────────────────────────────
-      - name: Isocalendar metrics
-        uses: lowlighter/metrics@latest
-        with:
-          token: ${{ secrets.METRICS_TOKEN }}
-          user: Ahmad-Hassan-0
-          template: classic
-          base: ""
-          config_timezone: Asia/Karachi
-          filename: metrics.isocalendar.svg
+          # ══════════════════════════════════════════════════════════════════
+          # RIGHT COLUMN
+          # ══════════════════════════════════════════════════════════════════
 
+          # 4. PageSpeed — performance score circles for your site ────────────
+          plugin_pagespeed: yes
+          plugin_pagespeed_url: https://kodearrow.wuaze.com/
+          plugin_pagespeed_detailed: no
+          plugin_pagespeed_screenshot: no
+
+          # 5. Isometric calendar — 3D contribution graph ─────────────────────
           plugin_isocalendar: yes
           plugin_isocalendar_duration: full-year
 
-      # ── Achievements ───────────────────────────────────────────────────────
-      - name: Achievements metrics
-        uses: lowlighter/metrics@latest
-        with:
-          token: ${{ secrets.METRICS_TOKEN }}
-          user: Ahmad-Hassan-0
-          template: classic
-          base: ""
-          config_timezone: Asia/Karachi
-          filename: metrics.achievements.svg
+          # 6. Languages — most-used bar + dot legend ─────────────────────────
+          plugin_languages: yes
+          plugin_languages_analysis_timeout: 15
+          plugin_languages_categories: markup, programming
+          plugin_languages_colors: github
+          plugin_languages_limit: 8
+          plugin_languages_sections: most-used
+          plugin_languages_threshold: 0%
+          plugin_languages_indepth: yes   # clones repos for accurate analysis
 
-          plugin_achievements: yes
-          plugin_achievements_threshold: B
-          plugin_achievements_secrets: yes
-          plugin_achievements_display: compact
-          plugin_achievements_limit: 0
-
-      # ── Recently starred repositories ──────────────────────────────────────
-      - name: Stars metrics
-        uses: lowlighter/metrics@latest
-        with:
-          token: ${{ secrets.METRICS_TOKEN }}
-          user: Ahmad-Hassan-0
-          template: classic
-          base: ""
-          config_timezone: Asia/Karachi
-          filename: metrics.stars.svg
-
-          plugin_stars: yes
-          plugin_stars_limit: 4
-
-      # ── Lines of code changed ──────────────────────────────────────────────
-      - name: Lines metrics
-        uses: lowlighter/metrics@latest
-        with:
-          token: ${{ secrets.METRICS_TOKEN }}
-          user: Ahmad-Hassan-0
-          template: classic
-          base: ""
-          config_timezone: Asia/Karachi
-          filename: metrics.lines.svg
-
-          plugin_lines: yes
-          plugin_lines_history_limit: 1
-          plugin_lines_repositories_limit: 4
-          plugin_lines_sections: base, repositories, history
-
-      # ── Notable contributions ──────────────────────────────────────────────
-      - name: Notable metrics
-        uses: lowlighter/metrics@latest
-        with:
-          token: ${{ secrets.METRICS_TOKEN }}
-          user: Ahmad-Hassan-0
-          template: classic
-          base: ""
-          config_timezone: Asia/Karachi
-          filename: metrics.notable.svg
-
-          plugin_notable: yes
-          plugin_notable_from: organization
-          plugin_notable_indepth: yes
-          plugin_notable_repositories: yes
-          plugin_notable_self: yes
-
-      # ── Commit calendar (full history) ────────────────────────────────────
-      - name: Calendar metrics
-        uses: lowlighter/metrics@latest
-        with:
-          token: ${{ secrets.METRICS_TOKEN }}
-          user: Ahmad-Hassan-0
-          template: classic
-          base: ""
-          config_timezone: Asia/Karachi
-          filename: metrics.calendar.svg
-
-          plugin_calendar: yes
-          plugin_calendar_limit: 0
+          # 7. Projects — task progress bar (done / doing / todo) ─────────────
+          plugin_projects: yes
+          plugin_projects_limit: 4
+          plugin_projects_descriptions: yes
