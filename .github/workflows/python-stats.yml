@@ -5,10 +5,12 @@ on:
     - cron: '0 */12 * * *'
   workflow_dispatch:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    
     permissions:
       contents: write 
 
@@ -21,7 +23,7 @@ jobs:
           python-version: '3.x'
           
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: pip install requests lxml python-dateutil
         
       - name: Run script
         env:
@@ -34,5 +36,4 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add cache/ dark_mode.svg light_mode.svg
-          git commit -m "chore: update python stats" || exit 0
-          git push
+          git diff --quiet && git diff --staged --quiet || (git commit -m "chore: update python stats" && git push)
