@@ -12,7 +12,9 @@ QUERY_COUNT = {'user_getter': 0, 'follower_getter': 0, 'graph_repos_stars': 0, '
 
 def daily_readme(birthday):
     """Returns the length of time since birth"""
-    diff = relativedelta.relativedelta(datetime.datetime.today(), birthday)
+    # Force the time to Asia/Karachi (UTC+5)
+    pakistan_time = datetime.datetime.utcnow() + datetime.timedelta(hours=5)
+    diff = relativedelta.relativedelta(pakistan_time, birthday)
     return '{} {}, {} {}, {} {}{}'.format(
         diff.years, 'year' + format_plural(diff.years), 
         diff.months, 'month' + format_plural(diff.months), 
@@ -324,7 +326,6 @@ if __name__ == '__main__':
     formatter('account data', user_time)
   
     age_data, age_time = perf_counter(daily_readme, datetime.datetime(2004, 2, 23))
-    
     
     formatter('age calculation', age_time)
     total_loc, loc_time = perf_counter(loc_query, ['OWNER', 'COLLABORATOR', 'ORGANIZATION_MEMBER'], 7)
