@@ -55,15 +55,15 @@ text, tspan {white-space: pre;}
 <tspan x="390" y="170" class="cc">. </tspan><tspan class="key">Languages</tspan>.<tspan class="key">Programming</tspan>:<tspan class="cc"> ...... </tspan><tspan class="value">C/C++, Py, Java/Kt, JSX, TSX</tspan>
 <tspan x="390" y="190" class="cc">. </tspan><tspan class="key">Languages</tspan>.<tspan class="key">ML</tspan>:<tspan class="cc"> ......... </tspan><tspan class="value">Pytorch, TensorFlow, TFlite/LiteRT</tspan>
 <tspan x="390" y="210" class="cc">. </tspan><tspan class="key">Languages</tspan>.<tspan class="key">Computer</tspan>:<tspan class="cc"> ......... </tspan><tspan class="value">UML, LaTeX, JSON, YAML, BASH</tspan>
-<tspan x="390" y="230" class="cc">. </tspan><tspan class="key">Languages</tspan>.<tspan class="key">Real</tspan>:<tspan class="cc"> .................... </tspan><tspan class="value">English, French, Urdu</tspan>
 <tspan x="390" y="250" class="cc">. </tspan>
-<tspan x="390" y="270" class="cc">. </tspan><tspan class="key">Hobbies</tspan>.<tspan class="key">Software</tspan>:<tspan class="cc"> .. </tspan><tspan class="value">CEO: Fractal, B, KodeArrow, Darkument</tspan>
-<tspan x="390" y="290" class="cc">. </tspan><tspan class="key">Hobbies</tspan>.<tspan class="key">Hardware</tspan>:<tspan class="cc"> ....... </tspan><tspan class="value">ESP32, Arduino UNO, Raspberry Pi</tspan>
-<tspan x="390" y="330">- Contact</tspan> -——————————————————————————————————————————————-—-
-<tspan x="390" y="350" class="cc">. </tspan><tspan class="key">Email</tspan>.<tspan class="key">Personal</tspan>:<tspan class="cc"> ............... </tspan><tspan class="value">ahmadhassan.bted@gmail.com</tspan>
-<tspan x="390" y="370" class="cc">. </tspan><tspan class="key">Behnace:<tspan class="cc"> .................................. </tspan><tspan class="value">ahmadhassan170</tspan>
-<tspan x="390" y="390" class="cc">. </tspan><tspan class="key">LinkedIn</tspan>:<tspan class="cc"> .............................. </tspan><tspan class="value">ahmad-hassan-bted</tspan>
-<tspan x="390" y="410" class="cc">. </tspan><tspan class="key">Instagram</tspan>:<tspan class="cc"> ................................... </tspan><tspan class="value">b_my_quotes</tspan>
+<tspan x="390" y="250" class="cc">. </tspan><tspan class="key">Creator</tspan>.<tspan class="key">Of</tspan>:<tspan class="cc"> ..... </tspan><tspan class="value">Fractal, B :AI Pal, KodeArrow, Darkument</tspan>
+<tspan x="390" y="250" class="cc">. </tspan>
+<tspan x="390" y="290" class="cc">. </tspan><tspan class="key">Hobbies</tspan>.<tspan class="key">Software</tspan>:<tspan class="cc"> .. </tspan><tspan class="value">Passion Projects, Low Level Computing</tspan>
+<tspan x="390" y="310" class="cc">. </tspan><tspan class="key">Hobbies</tspan>.<tspan class="key">Hardware</tspan>:<tspan class="cc"> ....... </tspan><tspan class="value">ESP32, Arduino UNO, Raspberry Pi</tspan>
+<tspan x="390" y="350">- Contact</tspan> -——————————————————————————————————————————————-—-
+<tspan x="390" y="370" class="cc">. </tspan><tspan class="key">Email</tspan>.<tspan class="key">Personal</tspan>:<tspan class="cc"> ............... </tspan><tspan class="value">ahmadhassan.bted@gmail.com</tspan>
+<tspan x="390" y="390" class="cc">. </tspan><tspan class="key">Behnace:<tspan class="cc"> .................................. </tspan><tspan class="value">ahmadhassan170</tspan></tspan>
+<tspan x="390" y="410" class="cc">. </tspan><tspan class="key">LinkedIn</tspan>:<tspan class="cc"> .............................. </tspan><tspan class="value">ahmad-hassan-bted</tspan>
 <tspan x="390" y="450">- GitHub Stats</tspan> -—————————————————————————————————————————-—-
 <tspan x="390" y="470" class="cc">. </tspan><tspan class="key">Repos</tspan>:<tspan class="cc" id="repo_data_dots"> .... </tspan><tspan class="value" id="repo_data">95</tspan> {<tspan class="key">Contributed</tspan>: <tspan class="value" id="contrib_data">133</tspan>} | <tspan class="key">Stars</tspan>:<tspan class="cc" id="star_data_dots"> ........... </tspan><tspan class="value" id="star_data">342</tspan>
 <tspan x="390" y="490" class="cc">. </tspan><tspan class="key">Commmits</tspan>:<tspan class="cc" id="commit_data_dots"> ................. </tspan><tspan class="value" id="commit_data">2,116</tspan> | <tspan class="key">Followers</tspan>:<tspan class="cc" id="follower_data_dots"> ....... </tspan><tspan class="value" id="follower_data">196</tspan>
