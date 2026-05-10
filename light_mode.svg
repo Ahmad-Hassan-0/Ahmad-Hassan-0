@@ -45,7 +45,7 @@ text, tspan {white-space: pre;}
   <tspan x="15" dy="1.2em">......-.            -----+++----------</tspan>
 </text>
 <text x="390" y="30" fill="#24292f">
-<tspan x="390" y="30">ahmadHassan@bted</tspan> -———————————————————————————————————————————-—-
+<tspan x="390" y="30">ahmad_hassan@bted</tspan> -———————————————————————————————————————————-—-
 <tspan x="390" y="50" class="cc">. </tspan><tspan class="key">OS</tspan>:<tspan class="cc"> ........................ </tspan><tspan class="value">Windows 11, Android 16, Linux</tspan>
 <tspan x="390" y="70" class="cc">. </tspan><tspan class="key">Uptime</tspan>:<tspan class="cc" id="age_data_dots"> ...................... </tspan><tspan class="value" id="age_data">22 years, 5 months, 29 days</tspan>
 <tspan x="390" y="90" class="cc">. </tspan><tspan class="key">Host</tspan>:<tspan class="cc"> ............................. </tspan><tspan class="value">TTM Technologies, Inc.</tspan>
