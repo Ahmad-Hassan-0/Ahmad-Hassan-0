@@ -17,22 +17,22 @@ text, tspan {white-space: pre;}
 </style>
 <rect width="985px" height="530px" fill="#161b22" rx="15"/>
 <text x="10" y="10" fill="#c9d1d9" class="ascii">
-  <tspan x="15" dy="1.2em">               #+-...---...  </tspan>
-  <tspan x="15" dy="1.2em">            #+-#+-.----------</tspan>
-  <tspan x="15" dy="1.2em">         ##-......-.......----..</tspan>
-  <tspan x="15" dy="1.2em">      #+.....--..      ....-.--...</tspan>
-  <tspan x="15" dy="1.2em">     #-----....-..        ..    ...</tspan>
-  <tspan x="15" dy="1.2em">    #+....-.                ..     ..</tspan>
-  <tspan x="15" dy="1.2em">  #+..                             ..</tspan>
-  <tspan x="15" dy="1.2em">  +..                              -.</tspan>
-  <tspan x="15" dy="1.2em">  +.                               -.</tspan>
+ 
+  <tspan x="15" dy="1.2em">             #+-#+##---------  </tspan>
+  <tspan x="15" dy="1.2em">         ######...-.......----..</tspan>
+  <tspan x="15" dy="1.2em">      ######.--..      ....-.--...</tspan>
+  <tspan x="15" dy="1.2em">   ####---....-..        ..    ...</tspan>
+  <tspan x="15" dy="1.2em">  ##+#....-.                ..     ..</tspan>
+  <tspan x="15" dy="1.2em"> #+..                             ..</tspan>
+  <tspan x="15" dy="1.2em"> +-..                              -.</tspan>
+  <tspan x="15" dy="1.2em"> +-.                               -.</tspan>
   <tspan x="15" dy="1.2em"> +..            ...                -.</tspan>
-  <tspan x="15" dy="1.2em">++-        .-..--++++...          .-.</tspan>
+  <tspan x="15" dy="1.2em"> -        .-..--++++...          .-..</tspan>
   <tspan x="15" dy="1.2em"> --       +#-+###########+..   ...--.. </tspan>
-  <tspan x="15" dy="1.2em"> --.  .  +##++############+.  .+.---..</tspan>
-  <tspan x="15" dy="1.2em"> -.. --..         .+++.       ..----..</tspan>
-  <tspan x="15" dy="1.2em"> -...++-                           .-..</tspan>
-  <tspan x="15" dy="1.2em">     .##            ##+            ...</tspan>
+  <tspan x="15" dy="1.2em">  -.  .  +##++############+.  .+.---..</tspan>
+  <tspan x="15" dy="1.2em">  .. --..         .+++.       ..----..</tspan>
+  <tspan x="15" dy="1.2em">  ...++-                           .-.</tspan>
+  <tspan x="15" dy="1.2em">     .##            ##+            ..</tspan>
   <tspan x="15" dy="1.2em">      -##+-..    .####-          ...</tspan>
   <tspan x="15" dy="1.2em">       .####################-.-..</tspan>
   <tspan x="15" dy="1.2em">       .+####++#+  .   .###+.-..</tspan>
@@ -43,6 +43,9 @@ text, tspan {white-space: pre;}
   <tspan x="15" dy="1.2em">    .-######.                 ...</tspan>
   <tspan x="15" dy="1.2em">.....########-            .     ...   </tspan>
   <tspan x="15" dy="1.2em">-....-#########+        .      ...... </tspan>
+  <tspan x="15" dy="1.2em">-....-#########+        .      ...... </tspan>
+
+
 </text>
 <text x="390" y="30" fill="#c9d1d9">
 <tspan x="390" y="30">ahmad_hassan@bted</tspan> -———————————————————————————————————————————-—-
