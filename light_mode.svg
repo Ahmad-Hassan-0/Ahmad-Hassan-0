@@ -16,32 +16,33 @@ size-adjust: 109%;
 text, tspan {white-space: pre;}
 </style>
 <rect width="985px" height="530px" fill="#f6f8fa" rx="15"/>
-<text x="15" y="30" fill="#24292f" class="ascii">
-<tspan x="15" y="30">            ;;,, ,;,|g;~,,                      </tspan>
-<tspan x="15" y="50">         ,g@@@@@@l&amp;$$$@|,w$$@gy,            </tspan>
-<tspan x="15" y="70">        $@@@@@@@@@@$@@@@@@@@$$MW$k              </tspan>
-<tspan x="15" y="90">       $$@@@@@@B@@@@@@@@@@@@@$@$$g,$            </tspan>
-<tspan x="15" y="110">     g@llM**'''||%@@@@@$@@$@@@@@@@L$&amp;      </tspan>
-<tspan x="15" y="130">   @$&amp;$F         ''T%M$@@@@@@@@@@@$@$@     </tspan>
-<tspan x="15" y="150">  @@@@F              ']@@@@@@$$@$@@@@          </tspan>
-<tspan x="15" y="170">  @@@$L               |$@@@$$l$@@@@$F          </tspan>
-<tspan x="15" y="190"> ]@@@@L ,@@$@@@@L  ,l@$$$$$$$$$@@@@@           </tspan>
-<tspan x="15" y="210">  %$@@@$}',,gg@||@@@@l@g@ggg|l$&amp;$@@$       </tspan>
-<tspan x="15" y="230">  ]@@@@@'"*TTTTT'F  ]Wl|||''"'$]@@@@ </tspan>
-<tspan x="15" y="250">   $$@M$       ,#    ]gg,,,,,.r'$@$            </tspan>
-<tspan x="15" y="270">    &amp;$L        ' ,, ,,,'T''`    $$L        </tspan>
-<tspan x="15" y="290">     lL         T"||||!   `-    l"'  </tspan>
-<tspan x="15" y="310">     ' |        '||l||||"|L|  L `         </tspan>
-<tspan x="15" y="330">      ''   '|L++=*****""*"||` L|</tspan>
-<tspan x="15" y="350">        |           ,,      |||F               </tspan>
-<tspan x="15" y="370">        '         |||||||| ||l$                </tspan>
-<tspan x="15" y="390">          !                |l&amp;L            </tspan>
-<tspan x="15" y="410">           '!,       |||,||@M|L                </tspan>
-<tspan x="15" y="430">            ||l&amp;$@$$@$$$@$MT|||            </tspan>
-<tspan x="15" y="450">         |    |||lll$$llll|||||L               </tspan>
-<tspan x="15" y="470">    ,;y@        ||||||l||@|||||l               </tspan>
-<tspan x="15" y="490">,g$@$$$@         |||||||||||||||| $g,          </tspan>
-<tspan x="15" y="510">$$$$$$$$@    |    |||||||||||||| |$$@g         </tspan>
+<text x="10" y="10" fill="#c9d1d9" class="ascii">
+  <tspan x="15" dy="1.2em">               #+-...---...  </tspan>
+  <tspan x="15" dy="1.2em">            #+-#+-.----------</tspan>
+  <tspan x="15" dy="1.2em">         ##-......-.......----..</tspan>
+  <tspan x="15" dy="1.2em">      #+.....--..      ....-.--...</tspan>
+  <tspan x="15" dy="1.2em">     #-----....-..        ..    ...</tspan>
+  <tspan x="15" dy="1.2em">    #+....-.                ..     ..</tspan>
+  <tspan x="15" dy="1.2em">  #+..                             ..</tspan>
+  <tspan x="15" dy="1.2em">  +..                              -.</tspan>
+  <tspan x="15" dy="1.2em">  +.                               -.</tspan>
+  <tspan x="15" dy="1.2em"> +..            ...                -.</tspan>
+  <tspan x="15" dy="1.2em">++-        .-..--++++...          .-.</tspan>
+  <tspan x="15" dy="1.2em"> --       +#-+###########+..   ...--.. </tspan>
+  <tspan x="15" dy="1.2em"> --.  .  +##++############+.  .+.---..</tspan>
+  <tspan x="15" dy="1.2em"> -.. --..         .+++.       ..----..</tspan>
+  <tspan x="15" dy="1.2em"> -...++-                           .-..</tspan>
+  <tspan x="15" dy="1.2em">     .##            ##+            ...</tspan>
+  <tspan x="15" dy="1.2em">      -##+-..    .####-          ...</tspan>
+  <tspan x="15" dy="1.2em">       .####################-.-..</tspan>
+  <tspan x="15" dy="1.2em">       .+####++#+  .   .###+.-..</tspan>
+  <tspan x="15" dy="1.2em">        .+--.  .....    ........</tspan>
+  <tspan x="15" dy="1.2em">         .--+++-....        ....</tspan>
+  <tspan x="15" dy="1.2em">         .   .#+.....       ...</tspan>
+  <tspan x="15" dy="1.2em">        -#+.  .-#+. .--.   .....</tspan>
+  <tspan x="15" dy="1.2em">    .-######.                 ...</tspan>
+  <tspan x="15" dy="1.2em">.....########-            .     ...   </tspan>
+  <tspan x="15" dy="1.2em">-....-#########+        .      ...... </tspan>
 </text>
 <text x="390" y="30" fill="#24292f">
 <tspan x="390" y="30">andrew@grant</tspan> -———————————————————————————————————————————-—-
