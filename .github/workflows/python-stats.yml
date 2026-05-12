@@ -32,8 +32,8 @@ jobs:
         run: python today.py
         
       - name: Commit and push changes
-              run: |
-                git config --global user.name 'github-actions[bot]'
-                git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-                git add cache/ dark_mode.svg light_mode.svg
-                git diff --quiet && git diff --staged --quiet || (git commit -m "chore: update python stats" && git pull --rebase origin main && git push)
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add cache/ dark_mode.svg light_mode.svg
+          git diff --quiet && git diff --staged --quiet || (git commit -m "chore: update python stats" && git pull --rebase origin main && git push)
