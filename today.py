@@ -12,7 +12,6 @@ QUERY_COUNT = {'user_getter': 0, 'follower_getter': 0, 'graph_repos_stars': 0, '
 
 def daily_readme(birthday):
     """Returns the length of time since birth"""
-    # Force the time to Asia/Karachi (UTC+5) using timezone-aware UTC to fix deprecation warning
     pakistan_time = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None) + datetime.timedelta(hours=5)
     diff = relativedelta.relativedelta(pakistan_time, birthday)
     return '{} {}, {} {}, {} {}{}'.format(
@@ -25,7 +24,6 @@ def format_plural(unit):
     return 's' if unit != 1 else ''
 
 def simple_request(func_name, query, variables):
-    # Added retry logic for 50x server errors
     for attempt in range(3):
         request = requests.post('https://api.github.com/graphql', json={'query': query, 'variables':variables}, headers=HEADERS)
         if request.status_code == 200:
@@ -34,15 +32,16 @@ def simple_request(func_name, query, variables):
             print(f"GitHub API {request.status_code} error in {func_name}. Retrying in 5 seconds... (Attempt {attempt + 1}/3)")
             time.sleep(5)
         else:
-            break # Break loop on 40x errors (auth, bad request, etc.)
+            break
             
     raise Exception(func_name, ' has failed with a', request.status_code, request.text, QUERY_COUNT)
 
 def graph_commits(start_date, end_date):
     query_count('graph_commits')
+    # UPGRADE: Uses 'viewer' to bypass visibility restrictions
     query = '''
-    query($start_date: DateTime!, $end_date: DateTime!, $login: String!) {
-        user(login: $login) {
+    query($start_date: DateTime!, $end_date: DateTime!) {
+        viewer {
             contributionsCollection(from: $start_date, to: $end_date) {
                 contributionCalendar {
                     totalContributions
@@ -50,15 +49,16 @@ def graph_commits(start_date, end_date):
             }
         }
     }'''
-    variables = {'start_date': start_date,'end_date': end_date, 'login': USER_NAME}
+    variables = {'start_date': start_date,'end_date': end_date}
     request = simple_request(graph_commits.__name__, query, variables)
-    return int(request.json()['data']['user']['contributionsCollection']['contributionCalendar']['totalContributions'])
+    return int(request.json()['data']['viewer']['contributionsCollection']['contributionCalendar']['totalContributions'])
 
 def graph_repos_stars(count_type, owner_affiliation, cursor=None, add_loc=0, del_loc=0):
     query_count('graph_repos_stars')
+    # UPGRADE: Uses 'viewer' to bypass visibility restrictions
     query = '''
-    query ($owner_affiliation: [RepositoryAffiliation], $login: String!, $cursor: String) {
-        user(login: $login) {
+    query ($owner_affiliation: [RepositoryAffiliation], $cursor: String) {
+        viewer {
             repositories(first: 100, after: $cursor, ownerAffiliations: $owner_affiliation) {
                 totalCount
                 edges {
@@ -78,34 +78,27 @@ def graph_repos_stars(count_type, owner_affiliation, cursor=None, add_loc=0, del
             }
         }
     }'''
-    variables = {'owner_affiliation': owner_affiliation, 'login': USER_NAME, 'cursor': cursor}
+    variables = {'owner_affiliation': owner_affiliation, 'cursor': cursor}
     request = simple_request(graph_repos_stars.__name__, query, variables)
     if request.status_code == 200:
         if count_type == 'repos':
-            return request.json()['data']['user']['repositories']['totalCount']
+            return request.json()['data']['viewer']['repositories']['totalCount']
         elif count_type == 'stars':
-            return stars_counter(request.json()['data']['user']['repositories']['edges'])
+            return stars_counter(request.json()['data']['viewer']['repositories']['edges'])
 
 def recursive_loc(owner, repo_name, data, cache_comment, addition_total=0, deletion_total=0, my_commits=0, cursor=None):
     query_count('recursive_loc')
+    # UPGRADE: Uses author_id to force GitHub to pre-filter your commits, stopping 502 server crashes.
     query = '''
-    query ($repo_name: String!, $owner: String!, $cursor: String) {
+    query ($repo_name: String!, $owner: String!, $cursor: String, $author_id: ID!) {
         repository(name: $repo_name, owner: $owner) {
             defaultBranchRef {
                 target {
                     ... on Commit {
-                        history(first: 100, after: $cursor) {
+                        history(first: 100, after: $cursor, author: {id: $author_id}) {
                             totalCount
                             edges {
                                 node {
-                                    ... on Commit {
-                                        committedDate
-                                    }
-                                    author {
-                                        user {
-                                            id
-                                        }
-                                    }
                                     deletions
                                     additions
                                 }
@@ -120,9 +113,8 @@ def recursive_loc(owner, repo_name, data, cache_comment, addition_total=0, delet
             }
         }
     }'''
-    variables = {'repo_name': repo_name, 'owner': owner, 'cursor': cursor}
+    variables = {'repo_name': repo_name, 'owner': owner, 'cursor': cursor, 'author_id': OWNER_ID['id']}
     
-    # Added retry logic for 50x server errors inside recursive_loc
     for attempt in range(3):
         request = requests.post('https://api.github.com/graphql', json={'query': query, 'variables':variables}, headers=HEADERS)
         if request.status_code == 200:
@@ -142,11 +134,11 @@ def recursive_loc(owner, repo_name, data, cache_comment, addition_total=0, delet
     raise Exception('recursive_loc() has failed with a', request.status_code, request.text, QUERY_COUNT)
 
 def loc_counter_one_repo(owner, repo_name, data, cache_comment, history, addition_total, deletion_total, my_commits):
+    # UPGRADE: Stripped out the manual checking. Since we filtered the query, we know 100% of these commits belong to you.
     for node in history['edges']:
-        if node['node']['author']['user'] == OWNER_ID:
-            my_commits += 1
-            addition_total += node['node']['additions']
-            deletion_total += node['node']['deletions']
+        my_commits += 1
+        addition_total += node['node']['additions']
+        deletion_total += node['node']['deletions']
 
     if history['edges'] == [] or not history['pageInfo']['hasNextPage']:
         return addition_total, deletion_total, my_commits
@@ -154,9 +146,10 @@ def loc_counter_one_repo(owner, repo_name, data, cache_comment, history, additio
 
 def loc_query(owner_affiliation, comment_size=0, force_cache=False, cursor=None, edges=[]):
     query_count('loc_query')
+    # UPGRADE: Uses 'viewer' to bypass visibility restrictions
     query = '''
-    query ($owner_affiliation: [RepositoryAffiliation], $login: String!, $cursor: String) {
-        user(login: $login) {
+    query ($owner_affiliation: [RepositoryAffiliation], $cursor: String) {
+        viewer {
             repositories(first: 60, after: $cursor, ownerAffiliations: $owner_affiliation) {
             edges {
                 node {
@@ -181,19 +174,19 @@ def loc_query(owner_affiliation, comment_size=0, force_cache=False, cursor=None,
             }
         }
     }'''
-    variables = {'owner_affiliation': owner_affiliation, 'login': USER_NAME, 'cursor': cursor}
+    variables = {'owner_affiliation': owner_affiliation, 'cursor': cursor}
     request = simple_request(loc_query.__name__, query, variables)
-    if request.json()['data']['user']['repositories']['pageInfo']['hasNextPage']:
-        edges += request.json()['data']['user']['repositories']['edges']
-        return loc_query(owner_affiliation, comment_size, force_cache, request.json()['data']['user']['repositories']['pageInfo']['endCursor'], edges)
+    if request.json()['data']['viewer']['repositories']['pageInfo']['hasNextPage']:
+        edges += request.json()['data']['viewer']['repositories']['edges']
+        return loc_query(owner_affiliation, comment_size, force_cache, request.json()['data']['viewer']['repositories']['pageInfo']['endCursor'], edges)
     else:
-        return cache_builder(edges + request.json()['data']['user']['repositories']['edges'], comment_size, force_cache)
+        return cache_builder(edges + request.json()['data']['viewer']['repositories']['edges'], comment_size, force_cache)
 
 def cache_builder(edges, comment_size, force_cache, loc_add=0, loc_del=0):
     cached = True
     filename = 'cache/'+hashlib.sha256(USER_NAME.encode('utf-8')).hexdigest()+'.txt'
     
-    os.makedirs(os.path.dirname(filename), exist_ok=True) # Ensure cache directory exists
+    os.makedirs(os.path.dirname(filename), exist_ok=True) 
     
     try:
         with open(filename, 'r') as f:
@@ -260,7 +253,7 @@ def svg_overwrite(filename, age_data, commit_data, star_data, repo_data, contrib
     justify_format(root, 'age_data', age_data, 49)
     justify_format(root, 'commit_data', commit_data, 22)
     justify_format(root, 'star_data', star_data, 14)
-    justify_format(root, 'repo_data', repo_data, 7) # Maintained your 1 extra dot here
+    justify_format(root, 'repo_data', repo_data, 7) 
     justify_format(root, 'contrib_data', contrib_data)
     justify_format(root, 'follower_data', follower_data, 10)
     justify_format(root, 'loc_data', loc_data[2], 9)
@@ -299,28 +292,27 @@ def commit_counter(comment_size):
 def user_getter(username):
     query_count('user_getter')
     query = '''
-    query($login: String!){
-        user(login: $login) {
+    query {
+        viewer {
             id
             createdAt
         }
     }'''
-    variables = {'login': username}
-    request = simple_request(user_getter.__name__, query, variables)
-    return {'id': request.json()['data']['user']['id']}, request.json()['data']['user']['createdAt']
+    request = simple_request(user_getter.__name__, query, {})
+    return {'id': request.json()['data']['viewer']['id']}, request.json()['data']['viewer']['createdAt']
 
 def follower_getter(username):
     query_count('follower_getter')
     query = '''
-    query($login: String!){
-        user(login: $login) {
+    query {
+        viewer {
             followers {
                 totalCount
             }
         }
     }'''
-    request = simple_request(follower_getter.__name__, query, {'login': username})
-    return int(request.json()['data']['user']['followers']['totalCount'])
+    request = simple_request(follower_getter.__name__, query, {})
+    return int(request.json()['data']['viewer']['followers']['totalCount'])
 
 def query_count(funct_id):
     global QUERY_COUNT
