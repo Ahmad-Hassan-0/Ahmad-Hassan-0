@@ -12,8 +12,8 @@ QUERY_COUNT = {'user_getter': 0, 'follower_getter': 0, 'graph_repos_stars': 0, '
 
 def daily_readme(birthday):
     """Returns the length of time since birth"""
-    # Force the time to Asia/Karachi (UTC+5)
-    pakistan_time = datetime.datetime.utcnow() + datetime.timedelta(hours=5)
+    # Force the time to Asia/Karachi (UTC+5) using timezone-aware UTC to fix deprecation warning
+    pakistan_time = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None) + datetime.timedelta(hours=5)
     diff = relativedelta.relativedelta(pakistan_time, birthday)
     return '{} {}, {} {}, {} {}{}'.format(
         diff.years, 'year' + format_plural(diff.years), 
@@ -25,9 +25,17 @@ def format_plural(unit):
     return 's' if unit != 1 else ''
 
 def simple_request(func_name, query, variables):
-    request = requests.post('https://api.github.com/graphql', json={'query': query, 'variables':variables}, headers=HEADERS)
-    if request.status_code == 200:
-        return request
+    # Added retry logic for 50x server errors
+    for attempt in range(3):
+        request = requests.post('https://api.github.com/graphql', json={'query': query, 'variables':variables}, headers=HEADERS)
+        if request.status_code == 200:
+            return request
+        elif request.status_code in [502, 503, 504]:
+            print(f"GitHub API {request.status_code} error in {func_name}. Retrying in 5 seconds... (Attempt {attempt + 1}/3)")
+            time.sleep(5)
+        else:
+            break # Break loop on 40x errors (auth, bad request, etc.)
+            
     raise Exception(func_name, ' has failed with a', request.status_code, request.text, QUERY_COUNT)
 
 def graph_commits(start_date, end_date):
@@ -113,14 +121,24 @@ def recursive_loc(owner, repo_name, data, cache_comment, addition_total=0, delet
         }
     }'''
     variables = {'repo_name': repo_name, 'owner': owner, 'cursor': cursor}
-    request = requests.post('https://api.github.com/graphql', json={'query': query, 'variables':variables}, headers=HEADERS)
-    if request.status_code == 200:
-        if request.json()['data']['repository']['defaultBranchRef'] != None:
-            return loc_counter_one_repo(owner, repo_name, data, cache_comment, request.json()['data']['repository']['defaultBranchRef']['target']['history'], addition_total, deletion_total, my_commits)
-        else: return 0
+    
+    # Added retry logic for 50x server errors inside recursive_loc
+    for attempt in range(3):
+        request = requests.post('https://api.github.com/graphql', json={'query': query, 'variables':variables}, headers=HEADERS)
+        if request.status_code == 200:
+            if request.json()['data']['repository']['defaultBranchRef'] != None:
+                return loc_counter_one_repo(owner, repo_name, data, cache_comment, request.json()['data']['repository']['defaultBranchRef']['target']['history'], addition_total, deletion_total, my_commits)
+            else: return 0
+        elif request.status_code == 403:
+            force_close_file(data, cache_comment)
+            raise Exception('Too many requests in a short amount of time!\nYou\'ve hit the anti-abuse limit!')
+        elif request.status_code in [502, 503, 504]:
+            print(f"GitHub API {request.status_code} error in recursive_loc. Retrying in 5 seconds... (Attempt {attempt + 1}/3)")
+            time.sleep(5)
+        else:
+            break
+            
     force_close_file(data, cache_comment)
-    if request.status_code == 403:
-        raise Exception('Too many requests in a short amount of time!\nYou\'ve hit the anti-abuse limit!')
     raise Exception('recursive_loc() has failed with a', request.status_code, request.text, QUERY_COUNT)
 
 def loc_counter_one_repo(owner, repo_name, data, cache_comment, history, addition_total, deletion_total, my_commits):
@@ -242,7 +260,7 @@ def svg_overwrite(filename, age_data, commit_data, star_data, repo_data, contrib
     justify_format(root, 'age_data', age_data, 49)
     justify_format(root, 'commit_data', commit_data, 22)
     justify_format(root, 'star_data', star_data, 14)
-    justify_format(root, 'repo_data', repo_data, 7)
+    justify_format(root, 'repo_data', repo_data, 7) # Maintained your 1 extra dot here
     justify_format(root, 'contrib_data', contrib_data)
     justify_format(root, 'follower_data', follower_data, 10)
     justify_format(root, 'loc_data', loc_data[2], 9)
