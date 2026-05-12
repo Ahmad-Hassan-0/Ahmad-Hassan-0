@@ -38,7 +38,6 @@ def simple_request(func_name, query, variables):
 
 def graph_commits(start_date, end_date):
     query_count('graph_commits')
-    # UPGRADE: Uses 'viewer' to bypass visibility restrictions
     query = '''
     query($start_date: DateTime!, $end_date: DateTime!) {
         viewer {
@@ -55,7 +54,6 @@ def graph_commits(start_date, end_date):
 
 def graph_repos_stars(count_type, owner_affiliation, cursor=None, add_loc=0, del_loc=0):
     query_count('graph_repos_stars')
-    # UPGRADE: Uses 'viewer' to bypass visibility restrictions
     query = '''
     query ($owner_affiliation: [RepositoryAffiliation], $cursor: String) {
         viewer {
@@ -88,7 +86,6 @@ def graph_repos_stars(count_type, owner_affiliation, cursor=None, add_loc=0, del
 
 def recursive_loc(owner, repo_name, data, cache_comment, addition_total=0, deletion_total=0, my_commits=0, cursor=None):
     query_count('recursive_loc')
-    # UPGRADE: Uses author_id to force GitHub to pre-filter your commits, stopping 502 server crashes.
     query = '''
     query ($repo_name: String!, $owner: String!, $cursor: String, $author_id: ID!) {
         repository(name: $repo_name, owner: $owner) {
@@ -134,7 +131,6 @@ def recursive_loc(owner, repo_name, data, cache_comment, addition_total=0, delet
     raise Exception('recursive_loc() has failed with a', request.status_code, request.text, QUERY_COUNT)
 
 def loc_counter_one_repo(owner, repo_name, data, cache_comment, history, addition_total, deletion_total, my_commits):
-    # UPGRADE: Stripped out the manual checking. Since we filtered the query, we know 100% of these commits belong to you.
     for node in history['edges']:
         my_commits += 1
         addition_total += node['node']['additions']
@@ -146,7 +142,6 @@ def loc_counter_one_repo(owner, repo_name, data, cache_comment, history, additio
 
 def loc_query(owner_affiliation, comment_size=0, force_cache=False, cursor=None, edges=[]):
     query_count('loc_query')
-    # UPGRADE: Uses 'viewer' to bypass visibility restrictions
     query = '''
     query ($owner_affiliation: [RepositoryAffiliation], $cursor: String) {
         viewer {
@@ -223,6 +218,7 @@ def cache_builder(edges, comment_size, force_cache, loc_add=0, loc_del=0):
         loc = line.split()
         loc_add += int(loc[3])
         loc_del += int(loc[4])
+    # NOTE: If you want Gross Lines instead of Net lines, change "loc_add - loc_del" below to just "loc_add"
     return [loc_add, loc_del, loc_add - loc_del, cached]
 
 def flush_cache(edges, filename, comment_size):
@@ -343,7 +339,8 @@ if __name__ == '__main__':
     formatter('LOC (cached)', loc_time) if total_loc[-1] else formatter('LOC (no cache)', loc_time)
     commit_data, commit_time = perf_counter(commit_counter, 7)
     star_data, star_time = perf_counter(graph_repos_stars, 'stars', ['OWNER'])
-    repo_data, repo_time = perf_counter(graph_repos_stars, 'repos', ['OWNER'])
+    # This now includes Organization Repos in your main "Repos: XX" count as well
+    repo_data, repo_time = perf_counter(graph_repos_stars, 'repos', ['OWNER', 'ORGANIZATION_MEMBER'])
     contrib_data, contrib_time = perf_counter(graph_repos_stars, 'repos', ['OWNER', 'COLLABORATOR', 'ORGANIZATION_MEMBER'])
     follower_data, follower_time = perf_counter(follower_getter, USER_NAME)
 
