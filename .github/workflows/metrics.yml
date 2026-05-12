@@ -102,7 +102,7 @@ jobs:
         with:
           # ── Auth & Output ──────────────────────────────────────────────────
           token: ${{ secrets.METRICS_TOKEN }}
-          user: Ahmad-Hassan-0
+          user: AhmadHassan-BTed
           filename: metrics.svg
           output_action: commit
           committer_branch: main
