@@ -1,36 +1,3 @@
-"""
-today.py — GitHub LOC Stats Updater
-====================================
-Counts total Lines of Code (additions / deletions) authored by the
-authenticated user across ALL repositories — including repositories that
-live inside GitHub Organisations the user is a member of.
-
-Key design decisions
----------------------
-* Uses  viewer { repositories(ownerAffiliations: [OWNER, COLLABORATOR,
-  ORGANIZATION_MEMBER]) }  instead of  user(login:…) { repositories }
-  so that organisation repos are never silently excluded.
-
-* Implements "aggressive heuristic matching": because GitHub strips the
-  explicit User-node ID from commits inside organisations (SSO / email
-  masking), the script also matches on raw Git author name / email
-  against a configurable set of known aliases.
-
-* Wraps every API call in a retry loop (4 attempts, 5 s back-off) that
-  retries on 5xx / network errors but NOT on 403 (rate-limit).
-
-* Maintains a text-based cache at  cache/<hashed_username>.txt  so that
-  repositories whose  totalCount  has not changed are skipped entirely.
-
-* Patches   dark_mode.svg  and  light_mode.svg  using lxml, updating
-  the elements whose ids are defined in  SVG_ELEMENT_IDS.
-
-Environment variables required
---------------------------------
-  ACCESS_TOKEN   — GitHub Personal Access Token (repo + read:org scopes)
-  USER_NAME      — GitHub login, e.g. "AhmadHassan-BTed"
-"""
-
 from __future__ import annotations
 
 import hashlib
@@ -453,7 +420,7 @@ def patch_svg(filepath: str, added: int, deleted: int, net: int) -> None:
 
     # Regenerate dot-spacers so alignment stays consistent.
     # The original dot widths from the SVG hint at ~2 and ~1 chars.
-    set_text("loc_data_dots", ". ")          # short spacer before net LOC
+    set_text("loc_data_dots", " ")          # short spacer before net LOC
     # loc_del_dots is typically empty in the template (inline spacer)
     if "loc_del_dots" in id_map:
         set_text("loc_del_dots", " ")
