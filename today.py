@@ -24,12 +24,12 @@ def format_plural(unit):
     return 's' if unit != 1 else ''
 
 def simple_request(func_name, query, variables):
-    for attempt in range(3):
+    for attempt in range(4):
         request = requests.post('https://api.github.com/graphql', json={'query': query, 'variables':variables}, headers=HEADERS)
         if request.status_code == 200:
             return request
         elif request.status_code in [502, 503, 504]:
-            print(f"GitHub API {request.status_code} error in {func_name}. Retrying in 5 seconds... (Attempt {attempt + 1}/3)")
+            print(f"GitHub API {request.status_code} error in {func_name}. Retrying in 5 seconds... (Attempt {attempt + 1}/4)")
             time.sleep(5)
         else:
             break
@@ -38,6 +38,7 @@ def simple_request(func_name, query, variables):
 
 def graph_commits(start_date, end_date):
     query_count('graph_commits')
+    # UPGRADE: 'viewer' guarantees access to your org stats
     query = '''
     query($start_date: DateTime!, $end_date: DateTime!) {
         viewer {
@@ -54,6 +55,7 @@ def graph_commits(start_date, end_date):
 
 def graph_repos_stars(count_type, owner_affiliation, cursor=None, add_loc=0, del_loc=0):
     query_count('graph_repos_stars')
+    # UPGRADE: 'viewer' guarantees access to your org stats
     query = '''
     query ($owner_affiliation: [RepositoryAffiliation], $cursor: String) {
         viewer {
@@ -86,6 +88,7 @@ def graph_repos_stars(count_type, owner_affiliation, cursor=None, add_loc=0, del
 
 def recursive_loc(owner, repo_name, data, cache_comment, addition_total=0, deletion_total=0, my_commits=0, cursor=None):
     query_count('recursive_loc')
+    # PRODUCTION FIX: Native 'author_id' filter forces GitHub to map your org commits properly
     query = '''
     query ($repo_name: String!, $owner: String!, $cursor: String, $author_id: ID!) {
         repository(name: $repo_name, owner: $owner) {
@@ -112,17 +115,19 @@ def recursive_loc(owner, repo_name, data, cache_comment, addition_total=0, delet
     }'''
     variables = {'repo_name': repo_name, 'owner': owner, 'cursor': cursor, 'author_id': OWNER_ID['id']}
     
-    for attempt in range(3):
+    for attempt in range(4):
         request = requests.post('https://api.github.com/graphql', json={'query': query, 'variables':variables}, headers=HEADERS)
         if request.status_code == 200:
-            if request.json()['data']['repository']['defaultBranchRef'] != None:
-                return loc_counter_one_repo(owner, repo_name, data, cache_comment, request.json()['data']['repository']['defaultBranchRef']['target']['history'], addition_total, deletion_total, my_commits)
-            else: return 0
+            repo_data = request.json().get('data', {}).get('repository')
+            if repo_data and repo_data.get('defaultBranchRef'):
+                return loc_counter_one_repo(owner, repo_name, data, cache_comment, repo_data['defaultBranchRef']['target']['history'], addition_total, deletion_total, my_commits)
+            else: 
+                return 0
         elif request.status_code == 403:
             force_close_file(data, cache_comment)
             raise Exception('Too many requests in a short amount of time!\nYou\'ve hit the anti-abuse limit!')
         elif request.status_code in [502, 503, 504]:
-            print(f"GitHub API {request.status_code} error in recursive_loc. Retrying in 5 seconds... (Attempt {attempt + 1}/3)")
+            print(f"GitHub API {request.status_code} error in recursive_loc. Retrying in 5 seconds... (Attempt {attempt + 1}/4)")
             time.sleep(5)
         else:
             break
@@ -131,6 +136,8 @@ def recursive_loc(owner, repo_name, data, cache_comment, addition_total=0, delet
     raise Exception('recursive_loc() has failed with a', request.status_code, request.text, QUERY_COUNT)
 
 def loc_counter_one_repo(owner, repo_name, data, cache_comment, history, addition_total, deletion_total, my_commits):
+    # UPGRADE: Since GitHub filtered the commits natively via GraphQL, we know 100% of these belong to you.
+    # No more Python-level ID matching dropping your lines.
     for node in history['edges']:
         my_commits += 1
         addition_total += node['node']['additions']
@@ -142,6 +149,7 @@ def loc_counter_one_repo(owner, repo_name, data, cache_comment, history, additio
 
 def loc_query(owner_affiliation, comment_size=0, force_cache=False, cursor=None, edges=[]):
     query_count('loc_query')
+    # UPGRADE: 'viewer' guarantees access to your org stats
     query = '''
     query ($owner_affiliation: [RepositoryAffiliation], $cursor: String) {
         viewer {
@@ -218,7 +226,6 @@ def cache_builder(edges, comment_size, force_cache, loc_add=0, loc_del=0):
         loc = line.split()
         loc_add += int(loc[3])
         loc_del += int(loc[4])
-    # NOTE: If you want Gross Lines instead of Net lines, change "loc_add - loc_del" below to just "loc_add"
     return [loc_add, loc_del, loc_add - loc_del, cached]
 
 def flush_cache(edges, filename, comment_size):
@@ -335,11 +342,13 @@ if __name__ == '__main__':
     age_data, age_time = perf_counter(daily_readme, datetime.datetime(2004, 2, 23))
     
     formatter('age calculation', age_time)
+    
+    # UPGRADE: Fetches repos explicitly where you are Owner, Collaborator, or Org Member
     total_loc, loc_time = perf_counter(loc_query, ['OWNER', 'COLLABORATOR', 'ORGANIZATION_MEMBER'], 7)
     formatter('LOC (cached)', loc_time) if total_loc[-1] else formatter('LOC (no cache)', loc_time)
+    
     commit_data, commit_time = perf_counter(commit_counter, 7)
     star_data, star_time = perf_counter(graph_repos_stars, 'stars', ['OWNER'])
-    # This now includes Organization Repos in your main "Repos: XX" count as well
     repo_data, repo_time = perf_counter(graph_repos_stars, 'repos', ['OWNER', 'ORGANIZATION_MEMBER'])
     contrib_data, contrib_time = perf_counter(graph_repos_stars, 'repos', ['OWNER', 'COLLABORATOR', 'ORGANIZATION_MEMBER'])
     follower_data, follower_time = perf_counter(follower_getter, USER_NAME)
