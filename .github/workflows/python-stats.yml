@@ -35,12 +35,16 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add cache/ dark_mode.svg light_mode.svg
           
-          # Check if there are actually changes staged to commit
+          # 1. ONLY add the SVGs first to check for visual changes
+          git add -f dark_mode.svg light_mode.svg
+          
+          # 2. Check if the SVGs actually changed
           if git diff --staged --quiet; then
-            echo "No changes detected. Stats are already up to date!"
+            echo "No visual changes in SVGs (numbers are still the same abbreviated K/M values). Skipping commit to prevent cache loop."
           else
+            # 3. If SVGs changed, stage the cache too, and commit!
+            git add cache/
             git commit -m "chore: update python stats"
             git pull --rebase origin main
             git push
