@@ -426,7 +426,7 @@ def patch_svg(filepath: str, added: int, deleted: int, net: int) -> None:
         set_text("loc_del_dots", " ")
 
     tree.write(str(path), xml_declaration=True, encoding="UTF-8", pretty_print=False)
-    print(f"  [svg] patched {filepath}  net={net_str}  +{add_str}  -{del_str}")
+    print(f"  [svg] patched {filepath}  net={net_str} +{add_str} -{del_str}")
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Entry point
