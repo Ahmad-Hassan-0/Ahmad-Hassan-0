@@ -379,8 +379,20 @@ def _dots(target_len: int, current_text_len: int) -> str:
     return " " + "." * max(0, n) + " "
 
 
+# def format_number(n: int) -> str:
+#     """Format integer with comma thousands separator."""
+#     return f"{n:,}"
+    
 def format_number(n: int) -> str:
-    """Format integer with comma thousands separator."""
+    """Format integer with compact K/M suffixes to prevent boundary overflow."""
+    abs_n = abs(n)
+    if abs_n >= 1_000_000:
+        return f"{n / 1_000_000:.2f}M"  
+    elif abs_n >= 100_000:
+        return f"{n / 1_000:.0f}K"
+    elif abs_n >= 1_000:
+        return f"{n / 1_000:.1f}K"
+    
     return f"{n:,}"
 
 
@@ -418,10 +430,34 @@ def patch_svg(filepath: str, added: int, deleted: int, net: int) -> None:
     set_text("loc_add",       add_str)
     set_text("loc_del",       del_str)
 
-    # Regenerate dot-spacers so alignment stays consistent.
-    # The original dot widths from the SVG hint at ~2 and ~1 chars.
-    set_text("loc_data_dots", " ")          # short spacer before net LOC
-    # loc_del_dots is typically empty in the template (inline spacer)
+    # # Regenerate dot-spacers so alignment stays consistent.
+    # # The original dot widths from the SVG hint at ~2 and ~1 chars.
+    # set_text("loc_data_dots", " ")          # short spacer before net LOC
+    # # loc_del_dots is typically empty in the template (inline spacer)
+    # if "loc_del_dots" in id_map:
+        set_text("loc_del_dots", " ")
+
+    # --- DYNAMIC DOT CALCULATION ---
+    # 1. Calculate the length of the dynamic numbers
+    dynamic_text_len = len(net_str) + len(add_str) + len(del_str)
+    
+    # 2. Add the length of the static characters present in your SVG template.
+    # This accounts for the spaces, parentheses, pluses, and minuses: " ( ++,  -- )"
+    # (Adjust this number slightly if your SVG spacing is slightly different)
+    static_svg_chars_len = 13 
+    
+    # 3. Define the total character length you want the right side to occupy.
+    # This acts as your "right boundary". Tweak this until the right parenthesis 
+    # perfectly aligns with the fields above it.
+    TARGET_TOTAL_LEN = 38 
+    
+    current_text_len = dynamic_text_len + static_svg_chars_len
+    
+    # 4. Generate the dots using your existing helper function
+    calculated_dots = _dots(TARGET_TOTAL_LEN, current_text_len)
+    
+    set_text("loc_data_dots", calculated_dots)
+
     if "loc_del_dots" in id_map:
         set_text("loc_del_dots", " ")
 
