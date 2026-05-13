@@ -435,7 +435,7 @@ def patch_svg(filepath: str, added: int, deleted: int, net: int) -> None:
     # set_text("loc_data_dots", " ")          # short spacer before net LOC
     # # loc_del_dots is typically empty in the template (inline spacer)
     # if "loc_del_dots" in id_map:
-        set_text("loc_del_dots", " ")
+        # set_text("loc_del_dots", " ")
 
     # --- DYNAMIC DOT CALCULATION ---
     # 1. Calculate the length of the dynamic numbers
