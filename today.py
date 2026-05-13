@@ -449,7 +449,7 @@ def patch_svg(filepath: str, added: int, deleted: int, net: int) -> None:
     # 3. Define the total character length you want the right side to occupy.
     # This acts as your "right boundary". Tweak this until the right parenthesis 
     # perfectly aligns with the fields above it.
-    TARGET_TOTAL_LEN = 34
+    TARGET_TOTAL_LEN = 33
     
     current_text_len = dynamic_text_len + static_svg_chars_len
     
